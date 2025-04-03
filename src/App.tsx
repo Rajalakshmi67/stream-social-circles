@@ -11,25 +11,29 @@ import Register from "./pages/auth/Register";
 import Groups from "./pages/Groups";
 import GroupDetail from "./pages/GroupDetail";
 import Browse from "./pages/Browse";
+import { AuthProvider } from "@/contexts/AuthContext";
+import RouteGuard from "@/components/auth/RouteGuard";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth/login" element={<Login />} />
-          <Route path="/auth/register" element={<Register />} />
-          <Route path="/groups" element={<Groups />} />
-          <Route path="/groups/:id" element={<GroupDetail />} />
-          <Route path="/browse" element={<Browse />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/register" element={<Register />} />
+            <Route path="/" element={<RouteGuard><Index /></RouteGuard>} />
+            <Route path="/groups" element={<RouteGuard><Groups /></RouteGuard>} />
+            <Route path="/groups/:id" element={<RouteGuard><GroupDetail /></RouteGuard>} />
+            <Route path="/browse" element={<RouteGuard><Browse /></RouteGuard>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

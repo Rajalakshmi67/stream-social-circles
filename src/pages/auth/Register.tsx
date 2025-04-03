@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -12,39 +12,34 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const { signUp, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      const from = (location.state as any)?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, location]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      toast({
-        variant: "destructive",
-        title: "Passwords don't match",
-        description: "Please make sure your passwords match.",
-      });
+      // Toast is handled in the Auth context
       return;
     }
     
     setIsLoading(true);
 
     try {
-      // Simulate register API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      toast({
-        title: "Registration successful",
-        description: "Welcome to StreamCircle! You can now sign in.",
-      });
-      
+      await signUp(email, password, name);
       navigate('/auth/login');
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Registration failed",
-        description: "Please try again later.",
-      });
+      // Error is handled in the Auth context
+      console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }

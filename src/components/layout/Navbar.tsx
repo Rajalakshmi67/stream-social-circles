@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Search, Menu, Bell, User } from 'lucide-react';
+import { Search, Menu, Bell, User, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,12 +10,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NavbarProps {
   onToggleSidebar: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth/login');
+  };
+
   return (
     <nav className="bg-ott-background/95 backdrop-blur-sm sticky top-0 z-50 border-b border-white/10">
       <div className="content-container py-4 flex items-center justify-between">
@@ -51,16 +60,27 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-ott-card border-white/10">
-              <DropdownMenuItem className="cursor-pointer">
-                <Link to="/profile" className="w-full">Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <Link to="/settings" className="w-full">Settings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <Link to="/auth/login" className="w-full">Logout</Link>
-              </DropdownMenuItem>
+              {user ? (
+                <>
+                  <DropdownMenuItem className="cursor-pointer">
+                    <Link to="/profile" className="w-full">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">
+                    <Link to="/settings" className="w-full">Settings</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                    <span className="flex items-center w-full">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </span>
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem className="cursor-pointer">
+                  <Link to="/auth/login" className="w-full">Login</Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
